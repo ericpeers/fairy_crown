@@ -7,7 +7,8 @@
 #include <Adafruit_NeoPixel.h>
 
 #define NUM_PIXELS 7
-#define PIN 1
+#define PIN 0
+#define SPARKLE_STEPS 10
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
@@ -16,7 +17,7 @@
 //   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, 4, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 // Here is where you can put in your favorite colors that will appear!
 // just add new {nnn, nnn, nnn}, lines. They will be picked out randomly
@@ -29,6 +30,7 @@ uint8_t myColors[][3] = {
                          {0, 255, 0}, //green
                          {26, 237, 227},   // turquoise
                          {0, 0, 255}, //blue
+                         {145, 255, 0}, //red-green
                          {245, 10, 88}  // hot pink
                           };
 
@@ -37,17 +39,19 @@ uint8_t myColors[][3] = {
 
 void setup() {
   strip.begin();
-  strip.setBrightness(30);
+  strip.setBrightness(40);
   strip.show(); // Initialize all pixels to 'off'
 }
 
 void loop() {
-//    sparkle();
-    single_color();
-//    for (int i=0;i<10;i++) {
-//      knight_rider(100);
-//    }
-//    flashRandom(10, 20);
+    for (int i=0;i<10;i++) {
+        single_color();
+    }
+    for (int i=0;i<10;i++) {
+      knight_rider(100);
+    }
+    sparkle();
+    //flashRandom(10, 20);
 
     /*
     flashRandom(10, 1);  // first number is 'wait' delay, shorter num == shorter twinkle
@@ -75,10 +79,10 @@ void random_assortment() {
 }
 
 
-int pixel = 0;
 
 void flashRandom(int wait, uint8_t howmany) {
-    random_assortment();
+    int pixel = 0;
+//    random_assortment();
     for(uint16_t i=0; i<howmany; i++) {
         // pick a random favorite color!
         int c = random(FAVCOLORS);
@@ -109,7 +113,8 @@ void flashRandom(int wait, uint8_t howmany) {
             delay(wait);
         }
         // get a random pixel from the list
-        pixel++; if (pixel >= NUM_PIXELS) pixel = 0;
+        pixel = random(NUM_PIXELS);
+        //pixel++; if (pixel >= NUM_PIXELS) pixel = 0;
 
     }
     // LEDs will be off when done (they are faded to 0)
@@ -144,16 +149,19 @@ void single_color() {
 }
 
 void sparkle() {
+    int pixel = 0;
     random_assortment();
 
-    for (int i=0;i<20;i++) {
-        int pixel = random(NUM_PIXELS);
+    for (int i=0;i<10;i++) {
+        pixel = random(NUM_PIXELS);
+        /*
+        pixel++;
+        if (pixel >= NUM_PIXELS) pixel = 0;*/
         sparkle_pixel(pixel);
     }
 }
 
 
-#define SPARKLE_STEPS 5
 
 void sparkle_pixel(int pixel) {
     int i;
@@ -170,22 +178,24 @@ void sparkle_pixel(int pixel) {
     int inc_g = (255 - green) / SPARKLE_STEPS;
     int inc_b = (255 - blue) / SPARKLE_STEPS;
 
-    for (i=0;i<SPARKLE_STEPS;i++) {
-        strip.setPixelColor(pixel, strip.Color(r, g, b));
-        r+= inc_r;
-        g+= inc_g;
-        b+= inc_b;
-        strip.show();
-        delay(100);
-    }
-    for (i=0;i<SPARKLE_STEPS;i++) {
-        strip.setPixelColor(pixel, strip.Color(r, g, b));
-        r+= inc_r;
-        g+= inc_g;
-        b+= inc_b;
-        strip.show();
-        delay(100);
-    }
+            for (i=0;i<SPARKLE_STEPS;i++) {
+                strip.setPixelColor(pixel, strip.Color(r, g, b));
+            r+= inc_r;
+            g+= inc_g;
+            b+= inc_b;
+            strip.show();
+            delay(25);
+        }
+        for (i=0;i<SPARKLE_STEPS;i++) {
+            strip.setPixelColor(pixel, strip.Color(r, g, b));
+            r-= inc_r;
+            g-= inc_g;
+            b-= inc_b;
+            strip.show();
+            delay(25);
+        }
+        delay (1000);
+    
 
     //just in case "math is hard". or imprecise.
     strip.setPixelColor(pixel, strip.Color(red, green, blue));
