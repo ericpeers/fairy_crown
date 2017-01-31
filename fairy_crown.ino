@@ -23,24 +23,24 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ80
 // just add new {nnn, nnn, nnn}, lines. They will be picked out randomly
 //                          R   G   B
 uint8_t myColors[][3] = {
-                         {255, 0, 0}, //red
-                         {237, 189, 31}, //orange
-                         {247, 243, 7}, //yellow
-                         {228, 30, 235},   // purple
-                         {0, 255, 0}, //green
-                         {26, 237, 227},   // turquoise
-                         {0, 0, 255}, //blue
-                         {145, 255, 0}, //red-green
-                         {245, 10, 88}  // hot pink
-                          };
+    {255, 0, 0},    //red
+    {237, 189, 31}, //orange
+    {247, 243, 7},  //yellow
+    {228, 30, 235}, // purple
+    {0, 255, 0},    //green
+    {26, 237, 227}, // turquoise
+    {0, 0, 255},    //blue
+    {145, 255, 0},  //red-green
+    {245, 10, 88}   // hot pink
+};
 
 // don't edit the line below
 #define FAVCOLORS sizeof(myColors) / 3
 
 void setup() {
-  strip.begin();
-  strip.setBrightness(40);
-  strip.show(); // Initialize all pixels to 'off'
+    strip.begin();
+    strip.setBrightness(40);
+    strip.show(); // Initialize all pixels to 'off'
 }
 
 void loop() {
@@ -48,16 +48,11 @@ void loop() {
         single_color();
     }
     for (int i=0;i<10;i++) {
-      knight_rider(100);
+        knight_rider(100);
     }
     sparkle();
-    //flashRandom(10, 20);
 
-    /*
-    flashRandom(10, 1);  // first number is 'wait' delay, shorter num == shorter twinkle
-    flashRandom(10, 1);  // second number is how many neopixels to simultaneously light up
-    flashRandom(10, 1);
-    */
+    //flashRandom(10, 20);
 }
 
 
@@ -79,10 +74,10 @@ void random_assortment() {
 }
 
 
-
+//original code, mostly for debug.
 void flashRandom(int wait, uint8_t howmany) {
     int pixel = 0;
-//    random_assortment();
+    //    random_assortment();
     for(uint16_t i=0; i<howmany; i++) {
         // pick a random favorite color!
         int c = random(FAVCOLORS);
@@ -114,13 +109,14 @@ void flashRandom(int wait, uint8_t howmany) {
         }
         // get a random pixel from the list
         pixel = random(NUM_PIXELS);
-        //pixel++; if (pixel >= NUM_PIXELS) pixel = 0;
 
     }
     // LEDs will be off when done (they are faded to 0)
 }
 
+
 //knight rider style effect
+//takes "wait" param for duration in ms to flash the pixel for.
 void knight_rider(int wait) {
     uint8_t i;
     uint8_t color = random(FAVCOLORS);
@@ -134,6 +130,8 @@ void knight_rider(int wait) {
         delay(wait);
         strip.setPixelColor(i, strip.Color(0,0,0));
     }
+
+    //don't double flash the terminal pixel (thus the -2)
     for (i=NUM_PIXELS-2;i!=0;i--) {
         strip.setPixelColor(i, strip.Color(red,green,blue));
         strip.show();
@@ -143,26 +141,24 @@ void knight_rider(int wait) {
 }
 
 void single_color() {
-
     random_assortment();
     delay(1000);
 }
 
+//picks a number of pixels randomly and sparkles them
 void sparkle() {
     int pixel = 0;
     random_assortment();
 
     for (int i=0;i<10;i++) {
         pixel = random(NUM_PIXELS);
-        /*
-        pixel++;
-        if (pixel >= NUM_PIXELS) pixel = 0;*/
         sparkle_pixel(pixel);
     }
 }
 
 
-
+//sparkles an individual pixel, selected by it's index (int pixel)
+//a sparkle causes the pixel to go toward white and then back down.
 void sparkle_pixel(int pixel) {
     int i;
     uint32_t packed = strip.getPixelColor(pixel);
@@ -178,24 +174,24 @@ void sparkle_pixel(int pixel) {
     int inc_g = (255 - green) / SPARKLE_STEPS;
     int inc_b = (255 - blue) / SPARKLE_STEPS;
 
-            for (i=0;i<SPARKLE_STEPS;i++) {
-                strip.setPixelColor(pixel, strip.Color(r, g, b));
-            r+= inc_r;
-            g+= inc_g;
-            b+= inc_b;
-            strip.show();
-            delay(25);
-        }
-        for (i=0;i<SPARKLE_STEPS;i++) {
-            strip.setPixelColor(pixel, strip.Color(r, g, b));
-            r-= inc_r;
-            g-= inc_g;
-            b-= inc_b;
-            strip.show();
-            delay(25);
-        }
-        delay (1000);
-    
+    for (i=0;i<SPARKLE_STEPS;i++) {
+        strip.setPixelColor(pixel, strip.Color(r, g, b));
+        r+= inc_r;
+        g+= inc_g;
+        b+= inc_b;
+        strip.show();
+        delay(25);
+    }
+    for (i=0;i<SPARKLE_STEPS;i++) {
+        strip.setPixelColor(pixel, strip.Color(r, g, b));
+        r-= inc_r;
+        g-= inc_g;
+        b-= inc_b;
+        strip.show();
+        delay(25);
+    }
+    delay (1000);
+
 
     //just in case "math is hard". or imprecise.
     strip.setPixelColor(pixel, strip.Color(red, green, blue));
